@@ -140,6 +140,10 @@ rewrite_aliases() {
   # from metadata, cross it off the stale list if present, or
   # add it to the interface otherwise. Then, remove any address
   # remaining in the stale list.
+bash -s -- "${INTERFACE}" "${PREFIX}" $aliases <<\EOF
+  INTERFACE="$1"; shift;
+  PREFIX="$1"; shift;
+  aliases=( "$@" )
   declare -A secondaries
   for secondary in $(/sbin/ip addr list dev ${INTERFACE} secondary \
                      |grep "inet .* secondary ${INTERFACE}" \
@@ -156,6 +160,7 @@ rewrite_aliases() {
   for secondary in "${!secondaries[@]}"; do
     /sbin/ip addr del ${secondary}/${PREFIX} dev ${INTERFACE}
   done
+EOF
 }
 
 remove_rules() {
